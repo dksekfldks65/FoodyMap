@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.widget.TabHost;
 import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,6 +38,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+        //Tab 메뉴바 생성
+        TabHost tabHost=(TabHost)findViewById(R.id.tabHost);
+        tabHost.setup();
+
+        TabHost.TabSpec spec1=tabHost.newTabSpec("Tab 1");
+        spec1.setContent(R.id.tab1);
+        spec1.setIndicator("맛집 지도");
+
+        TabHost.TabSpec spec2=tabHost.newTabSpec("Tab 2");
+        spec2.setIndicator("스토리");
+        spec2.setContent(R.id.tab2);
+
+        TabHost.TabSpec spec3=tabHost.newTabSpec("Tab 3");
+        spec3.setIndicator("리스트");
+        spec3.setContent(R.id.tab3);
+
+        TabHost.TabSpec spec4=tabHost.newTabSpec("Tab 4");
+        spec4.setIndicator("맛집 추가");
+        spec4.setContent(R.id.tab4);
+
+        tabHost.addTab(spec1);
+        tabHost.addTab(spec2);
+        tabHost.addTab(spec3);
+        tabHost.addTab(spec4);
     }
 
     @Override
