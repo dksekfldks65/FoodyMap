@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,6 +20,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.ByteArrayOutputStream;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -41,22 +45,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         //Tab 메뉴바 생성
-        TabHost tabHost=(TabHost)findViewById(R.id.tabHost);
+        TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
         tabHost.setup();
 
-        TabHost.TabSpec spec1=tabHost.newTabSpec("Tab 1");
+        TabHost.TabSpec spec1 = tabHost.newTabSpec("Tab 1");
         spec1.setContent(R.id.tab1);
         spec1.setIndicator("맛집 지도");
 
-        TabHost.TabSpec spec2=tabHost.newTabSpec("Tab 2");
+        TabHost.TabSpec spec2 = tabHost.newTabSpec("Tab 2");
         spec2.setIndicator("스토리");
         spec2.setContent(R.id.tab2);
 
-        TabHost.TabSpec spec3=tabHost.newTabSpec("Tab 3");
+        TabHost.TabSpec spec3 = tabHost.newTabSpec("Tab 3");
         spec3.setIndicator("리스트");
         spec3.setContent(R.id.tab3);
 
-        TabHost.TabSpec spec4=tabHost.newTabSpec("Tab 4");
+        TabHost.TabSpec spec4 = tabHost.newTabSpec("Tab 4");
         spec4.setIndicator("맛집 추가");
         spec4.setContent(R.id.tab4);
 
@@ -64,6 +68,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         tabHost.addTab(spec2);
         tabHost.addTab(spec3);
         tabHost.addTab(spec4);
+    }
+
+    //불러온 사진을 비트맵으로 구성후 byteArray에 저장하여 데이타 베이스에 저장해주는 함수
+    public byte[] bitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100 , stream);
+        byte[] byteArray = stream.toByteArray();
+        return byteArray;
+    }
+
+    //데이타 베이스에 byteArray형태로 저장된 사진을 다시 bitmap으로 변환해주는 함수
+    public Bitmap byteArrayToBitmap(byte[] byteArray){
+        Bitmap bitmap;
+        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+
+        int height = bitmap.getHeight();
+        int width = bitmap.getWidth();
+        Bitmap resized = null;
+
+        while (height > 118) {
+            resized = Bitmap.createScaledBitmap(bitmap, (width * 118) / height, 118, true);
+            height = resized.getHeight();
+            width = resized.getWidth();
+        }
+        return resized;
     }
 
     @Override
