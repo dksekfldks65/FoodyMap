@@ -64,11 +64,13 @@ android:layout_height="match_parent">
                     android:id="@+id/list"
                     >
 
+                    <ListView
+                        android:id="@+id/foodlist"
+                        android:dividerHeight="1dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
 
                 </LinearLayout>
-
-
-
             </LinearLayout>
 
             <RelativeLayout

@@ -17,12 +17,8 @@ public class DBManager extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // 새로운 테이블을 생성한다.
         // create table 테이블명 (컬럼명 타입 옵션);
-        db.execSQL("CREATE TABLE FOOD( _id INTEGER PRIMARY KEY AUTOINCREMENT,  name VARCHAR(30), memo TEXT);");
-        db.execSQL("CREATE TABLE FOOD_CATEGORY( _id INTEGER PRIMARY KEY AUTOINCREMENT, food_id INTEGER REFERENCES FOOD(_id) on delete cascade, category VARCHAR(30));");
-        db.execSQL("CREATE TABLE FOOD_MAP(_id INTEGER PRIMARY KEY AUTOINCREMENT, food_id INTEGER REFERENCES FOOD(_id) on delete cascade,lati REAL, longi REAL);");
+        db.execSQL("CREATE TABLE FOOD( _id INTEGER PRIMARY KEY AUTOINCREMENT,  name VARCHAR(30), category VARCHAR(30), memo TEXT, date VARCHAR(30), lati REAL, longi REAL);");
         db.execSQL("CREATE TABLE FOOD_PICTURE(_id INTEGER PRIMARY KEY AUTOINCREMENT, food_id INTEGER REFERENCES FOOD(_id) on delete cascade, picture BLOB);");
-        db.execSQL("CREATE TABLE FOOD_DATE(_id INTEGER PRIMARY KEY AUTOINCREMENT, food_id INTEGER REFERENCES FOOD(_id) on delete cascade,date VARCHAR(30));");
-
     }
 
     @Override
