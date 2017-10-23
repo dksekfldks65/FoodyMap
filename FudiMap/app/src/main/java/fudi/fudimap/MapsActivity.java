@@ -12,6 +12,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Button;
 import android.widget.TabHost;
 import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,6 +26,11 @@ import java.io.ByteArrayOutputStream;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    Button save;
+    Button picture_btn;
+    private final int REQ_CODE_GALLERY = 100;
+    static byte[] food;
+    static byte[][] foodpicture_save;
     private GoogleMap mMap;
     static double longi;
     static double lati;
@@ -43,6 +49,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+
+        save = (Button) findViewById(R.id.save);
+        picture_btn = (Button) findViewById(R.id.registerpicture);
+
+        foodpicture_save = new byte [30][];
 
         //Tab 메뉴바 생성
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
