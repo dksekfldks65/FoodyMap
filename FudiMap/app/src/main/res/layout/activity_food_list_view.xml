@@ -1,9 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="#DCDCDC"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="fudi.fudimap.FoodListViewActivity">
+    android:layout_height="match_parent">
 
-</android.support.constraint.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical">
+
+        <EditText
+            android:background="@drawable/layout"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:textSize="18dp"
+            android:layout_marginTop="20dp"
+            android:textColor="#DC143C"
+            />
+
+        <Spinner
+            android:layout_marginTop="14dp"
+            android:id="@+id/spinner1"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/food_category"
+            android:layout_below="@+id/title"
+            android:layout_marginBottom="10dp"
+            android:layout_centerHorizontal="true" />
+
+        <Gallery
+            android:id="@+id/gallery1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spacing="20dp"
+            android:unselectedAlpha="0.2"
+            android:visibility="gone"
+            />
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:src="@drawable/abc_btn_radio_to_on_mtrl_000"
+            android:paddingTop="0dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:visibility="gone" />
+
+        <EditText
+            android:background="@drawable/layout"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:id="@+id/memo"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:textSize="18dp"
+            android:textColor="#DC143C"
+            android:layout_below="@+id/spinner1"
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:text="수정하기"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/save"
+            android:onClick="onclickedsave"
+            android:layout_gravity="center"
+            android:layout_alignParentBottom="true"
+            android:layout_alignRight="@+id/memo"
+            android:layout_alignEnd="@+id/memo" />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -125,6 +125,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             adapter.addItem(ContextCompat.getDrawable(this, R.drawable.ic_launcher), eatery_title, eatery_category, eatery_key);
         }
 
+        eateryCursor.close();
+        pictureCursor.close();
+
         // 맛집리스트 클릭시 맛집에 대한 화면으로 이동
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -192,6 +195,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         food_id = eateryCursor.getInt(0);
         adapter.addItem(ContextCompat.getDrawable(this, R.drawable.ic_launcher), title, spinnertext, food_id);
         adapter.notifyDataSetChanged();
+
+        eateryCursor.close();
 
         for(int j=0; j<30;j++) {
             if(foodpicture_save[j] == null) {
