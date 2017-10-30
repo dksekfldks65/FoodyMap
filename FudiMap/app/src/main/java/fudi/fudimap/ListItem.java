@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable;
 public class ListItem {
     private Drawable iconDrawable ;
     private String titleStr ;
-    private String descStr ;
+    private String categoryStr ;
     private int id;
 
     public void setIcon(Drawable icon) {
@@ -15,8 +15,8 @@ public class ListItem {
     public void setTitle(String title) {
         titleStr = title ;
     }
-    public void setDesc(String desc) {
-        descStr = desc ;
+    public void setDesc(String category) {
+        categoryStr = category ;
     }
     public void setId(int id) {this.id=id;}
 
@@ -27,7 +27,7 @@ public class ListItem {
         return this.titleStr ;
     }
     public String getDesc() {
-        return this.descStr ;
+        return this.categoryStr ;
     }
     public int getId() {return this.id;}
 
