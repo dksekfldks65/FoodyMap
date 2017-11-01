@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -27,6 +28,9 @@ public class FoodListViewActivity extends AppCompatActivity {
     Bitmap [] foodBit2;
     int i=0;
 
+    Button update;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +40,8 @@ public class FoodListViewActivity extends AppCompatActivity {
         TextView title = (TextView) findViewById(R.id.title);
         TextView memo = (TextView) findViewById(R.id.memo);
         Spinner spinner = (Spinner) findViewById(R.id.spinner1);
+
+        update = (Button) findViewById(R.id.update);
 
         Intent intent = getIntent();
 
@@ -47,7 +53,7 @@ public class FoodListViewActivity extends AppCompatActivity {
         db = dbManager.getReadableDatabase();
 
         //cursor 지정
-        Cursor eateryCursor =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
+        Cursor eateryCursor = db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
         Cursor pictureCursor = db.rawQuery("SELECT _id, food_id, picture FROM FOOD_PICTURE", null);
 
 
@@ -115,6 +121,40 @@ public class FoodListViewActivity extends AppCompatActivity {
             }
         });
     }
+
+    //데이터 저장 및 업데이트 기능 구현
+    public void onclickedupdate(View v)
+    {
+        TextView title = (TextView) findViewById(R.id.title);
+        Spinner spinner = (Spinner)findViewById(R.id.spinner1);
+        TextView memo = (TextView) findViewById(R.id.memo);
+
+        //커서지정
+        Cursor update_eatery_cursor = db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
+
+        //db에 접근하여 id가 같으면 db수정 후 intent 종료
+        while(update_eatery_cursor.moveToNext())
+        {
+            if(update_eatery_cursor.getInt(0) == id)
+            {
+
+                String update_title = title.getText().toString();
+                String update_spinner = spinner.getSelectedItem().toString();
+                String update_memo = memo.getText().toString();
+                String sql1 = "update FOOD set name = '"+update_title+"' where _id = "+id;
+                String sql2 = "update FOOD set category = '"+update_spinner+"' where _id = "+id;
+                String sql3 = "update FOOD set memo = '"+update_memo+"' where _id = "+id;
+
+                dbManager.update(sql1);
+                dbManager.update(sql2);
+                dbManager.update(sql3);
+
+                finish();
+                break;
+            }
+        }
+    }
+
 
     //비트맵으로 재변환
     public Bitmap byteArrayToBitmap(byte[] byteArray){
