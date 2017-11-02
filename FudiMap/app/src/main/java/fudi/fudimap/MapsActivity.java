@@ -109,20 +109,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         tabHost.addTab(spec3);
         tabHost.addTab(spec4);
 
-
         //db접근 및 테이블 지정
         db = dbManager.getReadableDatabase();
         Cursor eateryCursor =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
         Cursor pictureCursor = db.rawQuery("SELECT _id, food_id, picture FROM FOOD_PICTURE", null);
 
         //데이터 베이스로 부터 불러온 맛집리스트 목록 출력
-        while(eateryCursor.moveToNext())
-        {
+        while(eateryCursor.moveToNext()) {
             //리스트뷰 초기화
             String eatery_title = eateryCursor.getString(1);
             String eatery_category = eateryCursor.getString(2);
             int eatery_key = eateryCursor.getInt(0);
-            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.ic_launcher), eatery_title, eatery_category, eatery_key);
+
+            if (eatery_category.equals("한식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("중식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.chinese_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("일식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.japanese_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("양식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.wastern_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("카페"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.cafe), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("고기"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.meat), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("분식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.snack), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("술집"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.drink), eatery_title, eatery_category, eatery_key);
         }
 
         eateryCursor.close();
@@ -196,12 +210,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         adapter.addItem(ContextCompat.getDrawable(this, R.drawable.ic_launcher), title, spinnertext, food_id);
         adapter.notifyDataSetChanged();
 
-        //현재 식당 지도에 마커 추가 기능 구현
-        MarkerOptions markerOpt = new MarkerOptions();
-        markerOpt.position(new LatLng(eateryCursor.getDouble(5), eateryCursor.getDouble(6)));// 위도 • 경도 지정
-        markerOpt.title(eateryCursor.getString(1)); //식당 이름
-        mMap.addMarker(markerOpt).showInfoWindow();
-
         eateryCursor.close();
 
         for(int j=0; j<30;j++) {
@@ -232,7 +240,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
         food = null;
-
     }
 
     //gallery에서 사진을 선택하여 불러올 수 있게 해주는 함수
@@ -299,7 +306,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         GPSListener gpsListener = new GPSListener();
-        long minTime = 10000;
+        long minTime = 60000;
         float minDistance = 0;
 
 
@@ -379,7 +386,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LatLng curPoint = new LatLng(latitude, longitude);
 
-        if(cnt == 0) {
             //마커객체 생성
             MarkerOptions optSecond = new MarkerOptions();
             optSecond.position(new LatLng(latitude, longitude));// 위도 • 경도
