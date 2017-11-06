@@ -207,7 +207,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Cursor eateryCursor =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
         eateryCursor.moveToLast();
         food_id = eateryCursor.getInt(0);
-        adapter.addItem(ContextCompat.getDrawable(this, R.drawable.ic_launcher), title, spinnertext, food_id);
+        String eatery_title = eateryCursor.getString(1);
+        String eatery_category = eateryCursor.getString(2);
+        int eatery_key = eateryCursor.getInt(0);
+
+        if (eatery_category.equals("한식"))
+            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
+        else if (eatery_category.equals("중식"))
+            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.chinese_food), eatery_title, eatery_category, eatery_key);
+        else if (eatery_category.equals("일식"))
+            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.japanese_food), eatery_title, eatery_category, eatery_key);
+        else if (eatery_category.equals("양식"))
+            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.wastern_food), eatery_title, eatery_category, eatery_key);
+        else if (eatery_category.equals("카페"))
+            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.cafe), eatery_title, eatery_category, eatery_key);
+        else if (eatery_category.equals("고기"))
+            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.meat), eatery_title, eatery_category, eatery_key);
+        else if (eatery_category.equals("분식"))
+            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.snack), eatery_title, eatery_category, eatery_key);
+        else if (eatery_category.equals("술집"))
+            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.drink), eatery_title, eatery_category, eatery_key);
+
         adapter.notifyDataSetChanged();
 
         eateryCursor.close();
