@@ -386,6 +386,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LatLng curPoint = new LatLng(latitude, longitude);
 
+        if(cnt ==0) {
             //마커객체 생성
             MarkerOptions optSecond = new MarkerOptions();
             optSecond.position(new LatLng(latitude, longitude));// 위도 • 경도
