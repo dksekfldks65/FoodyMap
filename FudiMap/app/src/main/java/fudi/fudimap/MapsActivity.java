@@ -422,4 +422,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // 지도 유형 설정. 지형도인 경우에는 GoogleMap.MAP_TYPE_TERRAIN, 위성 지도인 경우에는 GoogleMap.MAP_TYPE_SATELLITE
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
+
+    //맛집리스트 update를 대비하여, restart시 리스트뷰를 갱신
+    @Override
+    protected void onRestart(){
+        super.onRestart();
+
+        adapter = new ListViewAdapter();
+        listview = (ListView) findViewById(R.id.foodlist);
+        listview.setAdapter(adapter);
+
+        Cursor eateryCursor =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
+        //데이터 베이스로 부터 불러온 맛집리스트 목록 출력
+        while(eateryCursor.moveToNext())
+        {
+            //리스트뷰 초기화
+            String eatery_title = eateryCursor.getString(1);
+            String eatery_category = eateryCursor.getString(2);
+            int eatery_key = eateryCursor.getInt(0);
+
+            if (eatery_category.equals("한식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("중식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.chinese_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("일식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.japanese_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("양식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.wastern_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("카페"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.cafe), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("고기"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.meat), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("분식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.snack), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("술집"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.drink), eatery_title, eatery_category, eatery_key);
+        }
+
+        eateryCursor.close();
+    }
 }
