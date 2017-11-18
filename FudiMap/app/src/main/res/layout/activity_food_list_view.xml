@@ -54,6 +54,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:layout_marginBottom="10dp"
             android:visibility="gone" />
 
         <EditText
@@ -63,7 +64,7 @@
             android:layout_marginRight="15dp"
             android:id="@+id/memo"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="400dp"
             android:textSize="18dp"
             android:textColor="#DC143C"
             android:layout_below="@+id/spinner1"

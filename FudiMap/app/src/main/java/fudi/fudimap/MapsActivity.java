@@ -1,12 +1,11 @@
 package fudi.fudimap;
 
-import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -16,8 +15,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Gallery;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
@@ -36,7 +35,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -61,7 +59,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     static int i = 0;
     int cnt = 0;
     ArrayList<Story> story = new ArrayList<Story>();
-
+    StoryAdapter Story_adapter;
+    private GpsInfo gps;
 
 
     @Override
@@ -129,12 +128,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String eatery_category = eateryCursor.getString(2);
             String eatery_memo = eateryCursor.getString(3);
             String eatery_date = eateryCursor.getString(4);
+            double initLatitute = eateryCursor.getDouble(5);
+            double initLongitute = eateryCursor.getDouble(6);
 
-            if(pictureCursor.moveToNext() && pictureCursor.getInt(1) == eatery_key){
-                byte[] food_image = pictureCursor.getBlob(2);
-                Bitmap b = byteArrayToBitmap(food_image);
-                story.add(new Story(eatery_date,eatery_title, b, eatery_memo));
+            /*
+            //마커 초기화
+            MarkerOptions optSecond = new MarkerOptions();
+            optSecond.position(new LatLng(initLatitute, initLongitute));// 위도 • 경도
+            optSecond.title(eatery_title); // 제목 미리보기
+            mMap.addMarker(optSecond).showInfoWindow();
+            */
+
+            while(pictureCursor.moveToNext()){
+                if(pictureCursor.getInt(1) == eatery_key){
+                    byte[] food_image = pictureCursor.getBlob(2);
+                    Bitmap b = byteArrayToBitmap(food_image);
+                    story.add(new Story(eatery_date,eatery_title, b, eatery_memo));
+                }
             }
+            pictureCursor.moveToFirst();
+            pictureCursor.moveToPrevious();
+
 
 
             if (eatery_category.equals("한식"))
@@ -155,7 +169,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.drink), eatery_title, eatery_category, eatery_key);
         }
 
-        StoryAdapter Story_adapter = new StoryAdapter(getApplicationContext(), R.layout.story, story);
+        Story_adapter = new StoryAdapter(getApplicationContext(), R.layout.story, story);
         ListView lv = (ListView)findViewById(R.id.storylistView);
         lv.setAdapter(Story_adapter);
 
@@ -197,7 +211,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         adapter.deleteItem(position);
                         adapter.notifyDataSetChanged();
-
                     }
                 });
                 alert.show();
@@ -225,11 +238,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         db = dbManager.getReadableDatabase();
         Cursor eateryCursor =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
+
         eateryCursor.moveToLast();
         food_id = eateryCursor.getInt(0);
+
+        int eatery_key = eateryCursor.getInt(0);
         String eatery_title = eateryCursor.getString(1);
         String eatery_category = eateryCursor.getString(2);
-        int eatery_key = eateryCursor.getInt(0);
+        String eatery_memo = eateryCursor.getString(3);
+        String eatery_date = eateryCursor.getString(4);
+
 
         if (eatery_category.equals("한식"))
             adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
@@ -259,9 +277,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             else if(foodpicture_save[j] != null) {
                 dbManager.insert(food_id, foodpicture_save[j]);
+                byte[] food_image = foodpicture_save[j];
+                Bitmap b = byteArrayToBitmap(food_image);
+                story.add(new Story(eatery_date,eatery_title, b, eatery_memo));
                 Toast.makeText(getApplicationContext(), "사진 db에 저장됨", Toast.LENGTH_SHORT).show();
             }
         }
+
+
 
         editTitle.setText("");
         editMemo.setText("");
@@ -280,6 +303,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
         food = null;
+
+        //마커객체 생성
+        MarkerOptions optSecond = new MarkerOptions();
+        optSecond.position(new LatLng(lati, longi));// 위도 • 경도
+        optSecond.title(title); // 제목 미리보기
+        mMap.addMarker(optSecond).showInfoWindow();
     }
 
     //gallery에서 사진을 선택하여 불러올 수 있게 해주는 함수
@@ -344,89 +373,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        GPSListener gpsListener = new GPSListener();
-        long minTime = 60000;
-        float minDistance = 0;
+        gps = new GpsInfo(MapsActivity.this);
 
+        if (gps.isGetLocation()) {
 
-        try {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            manager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    minTime,
-                    minDistance,
-                    gpsListener);
+            lati = gps.getLatitude();
+            longi = gps.getLongitude();
+
+            Toast.makeText(getApplicationContext(), "당신의 위치 - \n위도: " + lati + "\n경도: " + longi, Toast.LENGTH_LONG).show();
+        } else {
+            // GPS 를 사용할수 없으므로
+            gps.showSettingsAlert();
         }
-
-        catch (Exception E) {
-            manager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER,
-                    minTime,
-                    minDistance,
-                    gpsListener);
-        }
-
-        Toast.makeText(getApplicationContext(), "위치 확인 시작함. 로그를 확인하세요.", Toast.LENGTH_SHORT).show();
     }
 
-    private class GPSListener implements LocationListener {
-        Double latitude;
-        Double longitude;
-        Location location;
-
+    private final LocationListener mLocationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
-            //capture location data sent by current provider
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
+            //여기서 위치값이 갱신되면 이벤트가 발생한다.
+            //값은 Location 형태로 리턴되며 좌표 출력 방법은 다음과 같다.
 
-            lati = latitude;
-            longi = longitude;
-
-            showCurrentLocation(latitude,longitude);
+            longi = location.getLongitude(); //경도
+            lati = location.getLatitude();   //위도
         }
-
         public void onProviderDisabled(String provider) {
+            // Disabled시
         }
 
         public void onProviderEnabled(String provider) {
-            lati = location.getLatitude();
-            longi = location.getLongitude();
+            // Enabled시
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {
+            // 변경시
         }
-    }
+    };
 
     private void showCurrentLocation(final Double latitude, final Double longitude) {
-        /*
-        // 현재 위치를 이용해 LatLon 객체 생성
-        mMap.clear();
-        LatLng curPoint = new LatLng(latitude, longitude);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(curPoint));
-
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-
-        MarkerOptions optFirst = new MarkerOptions();
-        optFirst.position(curPoint);// 위도 • 경도
-        optFirst.title("Current Position");// 제목 미리보기
-        optFirst.snippet("Snippet");
-        optFirst.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher));
-        mMap.addMarker(optFirst).showInfoWindow();
-        */
 
         LatLng curPoint = new LatLng(latitude, longitude);
 
-        if(cnt ==0) {
+        if(cnt == 0) {
             //마커객체 생성
             MarkerOptions optSecond = new MarkerOptions();
             optSecond.position(new LatLng(latitude, longitude));// 위도 • 경도
@@ -443,6 +429,192 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
 
+    public class GpsInfo extends Service implements LocationListener {
+
+        private final Context mContext;
+
+        // 현재 GPS 사용유무
+        boolean isGPSEnabled = false;
+
+        // 네트워크 사용유무
+        boolean isNetworkEnabled = false;
+
+        // GPS 상태값
+        boolean isGetLocation = false;
+
+        Location location;
+        double lat; // 위도
+        double lon; // 경도
+
+        // 최소 GPS 정보 업데이트 거리 10미터
+        private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
+
+        // 최소 GPS 정보 업데이트 시간 밀리세컨이므로 1분
+        private static final long MIN_TIME_BW_UPDATES = 1000 * 5 * 1;
+
+        protected LocationManager locationManager;
+
+        public GpsInfo(Context context) {
+            this.mContext = context;
+            getLocation();
+        }
+
+
+
+        public Location getLocation() {
+            try {
+                locationManager = (LocationManager) mContext
+                        .getSystemService(LOCATION_SERVICE);
+
+                // GPS 정보 가져오기
+                isGPSEnabled = locationManager
+                        .isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+                // 현재 네트워크 상태 값 알아오기
+                isNetworkEnabled = locationManager
+                        .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+                if (!isGPSEnabled && !isNetworkEnabled) {
+                    // GPS 와 네트워크사용이 가능하지 않을때 소스 구현
+                } else {
+                    this.isGetLocation = true;
+                    // 네트워크 정보로 부터 위치값 가져오기
+                    if (isNetworkEnabled) {
+                        locationManager.requestLocationUpdates(
+                                LocationManager.NETWORK_PROVIDER,
+                                MIN_TIME_BW_UPDATES,
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+
+                        if (locationManager != null) {
+                            location = locationManager
+                                    .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                            if (location != null) {
+                                // 위도 경도 저장
+                                lat = location.getLatitude();
+                                lon = location.getLongitude();
+                            }
+                        }
+                    }
+
+                    if (isGPSEnabled) {
+                        if (location == null) {
+                            locationManager.requestLocationUpdates(
+                                    LocationManager.GPS_PROVIDER,
+                                    MIN_TIME_BW_UPDATES,
+                                    MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                            if (locationManager != null) {
+                                location = locationManager
+                                        .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                                if (location != null) {
+                                    lat = location.getLatitude();
+                                    lon = location.getLongitude();
+                                }
+                            }
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return location;
+        }
+
+        /**
+         * GPS 종료
+         * */
+        public void stopUsingGPS(){
+            if(locationManager != null){
+                locationManager.removeUpdates((LocationListener) GpsInfo.this);
+            }
+        }
+
+        /**
+         * 위도값을 가져옵니다.
+         * */
+        public double getLatitude(){
+            if(location != null){
+                lat = location.getLatitude();
+            }
+            return lat;
+        }
+
+        /**
+         * 경도값을 가져옵니다.
+         * */
+        public double getLongitude(){
+            if(location != null){
+                lon = location.getLongitude();
+            }
+            return lon;
+        }
+
+        /**
+         * GPS 나 wife 정보가 켜져있는지 확인합니다.
+         * */
+        public boolean isGetLocation() {
+            return this.isGetLocation;
+        }
+
+        /**
+         * GPS 정보를 가져오지 못했을때
+         * 설정값으로 갈지 물어보는 alert 창
+         * */
+        public void showSettingsAlert(){
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+
+            alertDialog.setTitle("GPS 사용유무셋팅");
+            alertDialog.setMessage("GPS 셋팅이 되지 않았을수도 있습니다.\n 설정창으로 가시겠습니까?");
+
+            // OK 를 누르게 되면 설정창으로 이동합니다.
+            alertDialog.setPositiveButton("Settings",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,int which) {
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            mContext.startActivity(intent);
+                        }
+                    });
+            // Cancle 하면 종료 합니다.
+            alertDialog.setNegativeButton("Cancel",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+            alertDialog.show();
+        }
+
+        @Override
+        public IBinder onBind(Intent arg0) {
+            return null;
+        }
+
+        public void onLocationChanged(Location location) {
+            // TODO Auto-generated method stub
+            Double latitude = location.getLatitude();
+            Double longitude = location.getLongitude();
+            showCurrentLocation(latitude, longitude);
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            // TODO Auto-generated method stub
+
+        }
+
+        public void onProviderEnabled(String provider) {
+            // TODO Auto-generated method stub
+
+        }
+
+        public void onProviderDisabled(String provider) {
+            // TODO Auto-generated method stub
+
+        }
+    }
+
+
+
 
     //맛집리스트 update를 대비하여, restart시 리스트뷰를 갱신
     @Override
@@ -454,16 +626,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.i("tag", "onrestart start");
         db = dbManager.getReadableDatabase();
         Cursor eateryCursor2 =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
+        Cursor pictureCursor2 = db.rawQuery("SELECT _id, food_id, picture FROM FOOD_PICTURE", null);
         //데이터 베이스로 부터 불러온 맛집리스트 목록 출력
         while(eateryCursor2.moveToNext())
         {
-            int j=0;
-            Log.d("tag", String.valueOf(j));
-            j++;
+
             //리스트뷰 초기화
+            int eatery_key = eateryCursor2.getInt(0);
             String eatery_title = eateryCursor2.getString(1);
             String eatery_category = eateryCursor2.getString(2);
-            int eatery_key = eateryCursor2.getInt(0);
+            String eatery_memo = eateryCursor2.getString(3);
+            String eatery_date = eateryCursor2.getString(4);
+
+
+            while(pictureCursor2.moveToNext()){
+                if(pictureCursor2.getInt(1) == eatery_key){
+                    byte[] food_image = pictureCursor2.getBlob(2);
+                    Bitmap b = byteArrayToBitmap(food_image);
+                    story.add(new Story(eatery_date,eatery_title, b, eatery_memo));
+                }
+            }
+            pictureCursor2.moveToFirst();
+            pictureCursor2.moveToPrevious();
+
 
             if (eatery_category.equals("한식"))
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
