@@ -49,6 +49,22 @@ android:layout_height="match_parent">
                 android:focusableInTouchMode="true"
                 android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="나의 스토리"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <ListView
+                    android:id="@+id/storylistView"
+                    android:dividerHeight="30dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="8" >
+                </ListView>
+
             </LinearLayout>
 
             <LinearLayout
@@ -142,6 +158,8 @@ android:layout_height="match_parent">
                         android:text="저장" />
 
                 </LinearLayout>
+
+
 
             </RelativeLayout>
 

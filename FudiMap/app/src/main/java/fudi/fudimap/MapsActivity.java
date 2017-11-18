@@ -20,10 +20,12 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Gallery;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
@@ -39,6 +41,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -57,6 +60,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     SQLiteDatabase db;
     static int i = 0;
     int cnt = 0;
+    ArrayList<Story> story = new ArrayList<Story>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         listview.setAdapter(adapter);
 
         foodpicture_save = new byte [30][];
+
 
         //Tab 메뉴바 생성
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
@@ -117,9 +124,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //데이터 베이스로 부터 불러온 맛집리스트 목록 출력
         while(eateryCursor.moveToNext()) {
             //리스트뷰 초기화
+            int eatery_key = eateryCursor.getInt(0);
             String eatery_title = eateryCursor.getString(1);
             String eatery_category = eateryCursor.getString(2);
-            int eatery_key = eateryCursor.getInt(0);
+            String eatery_memo = eateryCursor.getString(3);
+            String eatery_date = eateryCursor.getString(4);
+
+            if(pictureCursor.moveToNext() && pictureCursor.getInt(1) == eatery_key){
+                byte[] food_image = pictureCursor.getBlob(2);
+                Bitmap b = byteArrayToBitmap(food_image);
+                story.add(new Story(eatery_date,eatery_title, b, eatery_memo));
+            }
+
 
             if (eatery_category.equals("한식"))
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
@@ -138,6 +154,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             else if (eatery_category.equals("술집"))
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.drink), eatery_title, eatery_category, eatery_key);
         }
+
+        StoryAdapter Story_adapter = new StoryAdapter(getApplicationContext(), R.layout.story, story);
+        ListView lv = (ListView)findViewById(R.id.storylistView);
+        lv.setAdapter(Story_adapter);
 
         eateryCursor.close();
         pictureCursor.close();
@@ -423,23 +443,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
 
+
     //맛집리스트 update를 대비하여, restart시 리스트뷰를 갱신
     @Override
     protected void onRestart(){
         super.onRestart();
-
         adapter = new ListViewAdapter();
         listview = (ListView) findViewById(R.id.foodlist);
         listview.setAdapter(adapter);
-
-        Cursor eateryCursor =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
+        Log.i("tag", "onrestart start");
+        db = dbManager.getReadableDatabase();
+        Cursor eateryCursor2 =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
         //데이터 베이스로 부터 불러온 맛집리스트 목록 출력
-        while(eateryCursor.moveToNext())
+        while(eateryCursor2.moveToNext())
         {
+            int j=0;
+            Log.d("tag", String.valueOf(j));
+            j++;
             //리스트뷰 초기화
-            String eatery_title = eateryCursor.getString(1);
-            String eatery_category = eateryCursor.getString(2);
-            int eatery_key = eateryCursor.getInt(0);
+            String eatery_title = eateryCursor2.getString(1);
+            String eatery_category = eateryCursor2.getString(2);
+            int eatery_key = eateryCursor2.getInt(0);
 
             if (eatery_category.equals("한식"))
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
@@ -459,6 +483,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.drink), eatery_title, eatery_category, eatery_key);
         }
 
-        eateryCursor.close();
+        eateryCursor2.close();
     }
+
 }
