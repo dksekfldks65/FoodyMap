@@ -8,10 +8,12 @@ android:layout_height="match_parent">
 
 <TabHost
     android:id ="@+id/tabHost"
+    android:background="#FFFFFF"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
+
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -45,6 +47,7 @@ android:layout_height="match_parent">
                 android:id="@+id/tab2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#FFF0F8FF"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:orientation="vertical">
@@ -54,12 +57,17 @@ android:layout_height="match_parent">
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:text="나의 스토리"
+                    android:layout_marginTop="30dp"
+                    android:textSize="40sp"
+                    android:layout_gravity="center"
+                    android:text="타임라인"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <ListView
                     android:id="@+id/storylistView"
-                    android:dividerHeight="30dp"
+                    android:dividerHeight="10dp"
+                    android:divider="#ffffff"
+                    android:background="#FFF0F8FF"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="8" >
@@ -111,6 +119,7 @@ android:layout_height="match_parent">
                     android:layout_below="@+id/title"
                     android:layout_marginTop="20dp"
                     android:id="@+id/spinner1"
+                    android:background="@drawable/layout"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:layout_width="match_parent"
@@ -121,10 +130,11 @@ android:layout_height="match_parent">
                     android:layout_below="@+id/spinner1"
                     android:background="@drawable/layout"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
                     android:id="@+id/grade"
                     android:layout_width="match_parent"
-                    android:layout_height="400dp"
+                    android:layout_height="330dp"
                     android:textSize="18dp"
                     android:hint="메모를 남겨 주세요"
                     android:layout_marginTop="15dp"
@@ -134,25 +144,27 @@ android:layout_height="match_parent">
                     android:layout_below="@+id/grade"
                     android:layout_width="match_parent"
                     android:orientation="horizontal"
+                    android:layout_marginTop="20dp"
                     android:layout_height="match_parent">
 
                     <Button
                         android:id="@+id/registerpicture"
-                        android:layout_width="wrap_content"
+                        android:layout_width="160dp"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/grade"
                         android:layout_marginLeft="15dp"
-                        android:backgroundTint="@android:color/holo_blue_bright"
+                        android:background="@drawable/layout"
                         android:onClick="onclickedpicture"
                         android:text="사진등록" />
 
                     <Button
                         android:id="@+id/save"
-                        android:layout_width="wrap_content"
+                        android:textColor="#000000"
+                        android:layout_width="160dp"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/registerpicture"
                         android:layout_marginLeft="15dp"
-                        android:backgroundTint="@android:color/holo_blue_light"
+                        android:background="@drawable/layout"
                         android:onClick="onclickedsave"
                         android:text="저장" />
 

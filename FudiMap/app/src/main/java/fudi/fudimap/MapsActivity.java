@@ -348,13 +348,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(requestCode == REQ_CODE_GALLERY){
             if(resultCode == RESULT_OK){
                 Uri uri = data.getData();
-                Toast.makeText(getApplicationContext(), "activity result2", Toast.LENGTH_SHORT).show();
+
                 try {
                     Bitmap bm = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                     Bitmap resized = null;
                     int height = bm.getHeight();
                     int width = bm.getWidth();
-                    resized = Bitmap.createScaledBitmap(bm, width/2, height/2, true);
+                    resized = Bitmap.createScaledBitmap(bm, width/4, height/4, true);
                     if(height > 2000){
                         resized = imgRotate(resized);
                         food = bitmapToByteArray(resized);

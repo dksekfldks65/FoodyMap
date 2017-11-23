@@ -43,10 +43,7 @@ public class FoodListViewActivity extends AppCompatActivity {
     ImageView iv2;
     Button update;
     Button addPicture;
-
-
     static byte[][] foodpicture_add;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +70,6 @@ public class FoodListViewActivity extends AppCompatActivity {
         //cursor 지정
         Cursor eateryCursor = db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
         Cursor pictureCursor = db.rawQuery("SELECT _id, food_id, picture FROM FOOD_PICTURE", null);
-
 
         //db에 접근하여 id가 같으면 현재 리스트뷰 내용 화면에 출력
         while(eateryCursor.moveToNext()) {
@@ -123,8 +119,6 @@ public class FoodListViewActivity extends AppCompatActivity {
 
         // adapter
         MyAdapter adapter = new MyAdapter(getApplicationContext(), R.layout.row, foodBit1);
-
-        // adapterView
 
         gallery.setAdapter(adapter);
 
@@ -271,7 +265,7 @@ public class FoodListViewActivity extends AppCompatActivity {
                     Bitmap resized = null;
                     int height = bm.getHeight();
                     int width = bm.getWidth();
-                    resized = Bitmap.createScaledBitmap(bm, width/2, height/2, true);
+                    resized = Bitmap.createScaledBitmap(bm, width/4, height/4, true);
 
                     if(height > 2000){
                         resized = imgRotate(resized);
