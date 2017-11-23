@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -131,14 +132,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             double initLatitute = eateryCursor.getDouble(5);
             double initLongitute = eateryCursor.getDouble(6);
 
-            /*
-            //마커 초기화
-            MarkerOptions optSecond = new MarkerOptions();
-            optSecond.position(new LatLng(initLatitute, initLongitute));// 위도 • 경도
-            optSecond.title(eatery_title); // 제목 미리보기
-            mMap.addMarker(optSecond).showInfoWindow();
-            */
-
             while(pictureCursor.moveToNext()){
                 if(pictureCursor.getInt(1) == eatery_key){
                     byte[] food_image = pictureCursor.getBlob(2);
@@ -233,82 +226,80 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String spinnertext = spinner.getSelectedItem().toString();
         String memo = editMemo.getText().toString();
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        if(!title.equals("")){
+            dbManager.insert("insert into FOOD values(null, '" + title + "', '" + spinnertext + "', '" +memo + "', '" + currentDateTimeString + "' , "+lati+", "+longi+");");
 
-        dbManager.insert("insert into FOOD values(null, '" + title + "', '" + spinnertext + "', '" +memo + "', '" + currentDateTimeString + "' , "+lati+", "+longi+");");
+            db = dbManager.getReadableDatabase();
+            Cursor eateryCursor =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
 
-        db = dbManager.getReadableDatabase();
-        Cursor eateryCursor =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
+            eateryCursor.moveToLast();
+            food_id = eateryCursor.getInt(0);
 
-        eateryCursor.moveToLast();
-        food_id = eateryCursor.getInt(0);
+            int eatery_key = eateryCursor.getInt(0);
+            String eatery_title = eateryCursor.getString(1);
+            String eatery_category = eateryCursor.getString(2);
+            String eatery_memo = eateryCursor.getString(3);
+            String eatery_date = eateryCursor.getString(4);
 
-        int eatery_key = eateryCursor.getInt(0);
-        String eatery_title = eateryCursor.getString(1);
-        String eatery_category = eateryCursor.getString(2);
-        String eatery_memo = eateryCursor.getString(3);
-        String eatery_date = eateryCursor.getString(4);
+            if (eatery_category.equals("한식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("중식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.chinese_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("일식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.japanese_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("양식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.wastern_food), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("카페"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.cafe), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("고기"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.meat), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("분식"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.snack), eatery_title, eatery_category, eatery_key);
+            else if (eatery_category.equals("술집"))
+                adapter.addItem(ContextCompat.getDrawable(this, R.drawable.drink), eatery_title, eatery_category, eatery_key);
 
+            adapter.notifyDataSetChanged();
 
-        if (eatery_category.equals("한식"))
-            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
-        else if (eatery_category.equals("중식"))
-            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.chinese_food), eatery_title, eatery_category, eatery_key);
-        else if (eatery_category.equals("일식"))
-            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.japanese_food), eatery_title, eatery_category, eatery_key);
-        else if (eatery_category.equals("양식"))
-            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.wastern_food), eatery_title, eatery_category, eatery_key);
-        else if (eatery_category.equals("카페"))
-            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.cafe), eatery_title, eatery_category, eatery_key);
-        else if (eatery_category.equals("고기"))
-            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.meat), eatery_title, eatery_category, eatery_key);
-        else if (eatery_category.equals("분식"))
-            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.snack), eatery_title, eatery_category, eatery_key);
-        else if (eatery_category.equals("술집"))
-            adapter.addItem(ContextCompat.getDrawable(this, R.drawable.drink), eatery_title, eatery_category, eatery_key);
+            eateryCursor.close();
 
-        adapter.notifyDataSetChanged();
+            for(int j=0; j<30;j++) {
+                if(foodpicture_save[j] == null) {
+                    break;
+                }
 
-        eateryCursor.close();
-
-        for(int j=0; j<30;j++) {
-            if(foodpicture_save[j] == null) {
-                break;
+                else if(foodpicture_save[j] != null) {
+                    dbManager.insert(food_id, foodpicture_save[j]);
+                    byte[] food_image = foodpicture_save[j];
+                    Bitmap b = byteArrayToBitmap(food_image);
+                    story.add(new Story(eatery_date,eatery_title, b, eatery_memo));
+                    Toast.makeText(getApplicationContext(), "사진 db에 저장됨", Toast.LENGTH_SHORT).show();
+                }
             }
 
-            else if(foodpicture_save[j] != null) {
-                dbManager.insert(food_id, foodpicture_save[j]);
-                byte[] food_image = foodpicture_save[j];
-                Bitmap b = byteArrayToBitmap(food_image);
-                story.add(new Story(eatery_date,eatery_title, b, eatery_memo));
-                Toast.makeText(getApplicationContext(), "사진 db에 저장됨", Toast.LENGTH_SHORT).show();
+            editTitle.setText("");
+            editMemo.setText("");
+            spinner.setSelection(0);
+
+            i = 0;
+
+            for(int i=0;i<30;i++) {
+                if(foodpicture_save[i] != null) {
+                    foodpicture_save[i] = null;
+                }
+
+                else{
+                    break;
+                }
             }
+            food = null;
+
+            //마커객체 생성
+            MarkerOptions optSecond = new MarkerOptions();
+            optSecond.position(new LatLng(lati, longi));// 위도 • 경도
+            optSecond.title(title); // 제목 미리보기
+            mMap.addMarker(optSecond).showInfoWindow();
         }
 
-
-
-        editTitle.setText("");
-        editMemo.setText("");
-        spinner.setSelection(0);
-
-        i = 0;
-
-        for(int i=0;i<30;i++) {
-            if(foodpicture_save[i] != null) {
-                foodpicture_save[i] = null;
-                Toast.makeText(getApplicationContext(), "picture save 지워짐", Toast.LENGTH_SHORT).show();
-            }
-
-            else{
-                break;
-            }
-        }
-        food = null;
-
-        //마커객체 생성
-        MarkerOptions optSecond = new MarkerOptions();
-        optSecond.position(new LatLng(lati, longi));// 위도 • 경도
-        optSecond.title(title); // 제목 미리보기
-        mMap.addMarker(optSecond).showInfoWindow();
     }
 
     //gallery에서 사진을 선택하여 불러올 수 있게 해주는 함수
@@ -317,6 +308,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         i.setType("image/*");
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivityForResult(i, REQ_CODE_GALLERY);
+        //Toast.makeText(getApplicationContext(), "onclickedpicture", Toast.LENGTH_SHORT).show();
     }
 
     //불러온 사진을 비트맵으로 구성후 byteArray에 저장하여 데이타 베이스에 저장해주는 함수
@@ -331,29 +323,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Bitmap byteArrayToBitmap(byte[] byteArray){
         Bitmap bitmap;
         bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-
-        int height = bitmap.getHeight();
-        int width = bitmap.getWidth();
-        Bitmap resized = null;
-
-        while (height > 118) {
-            resized = Bitmap.createScaledBitmap(bitmap, (width * 118) / height, 118, true);
-            height = resized.getHeight();
-            width = resized.getWidth();
-        }
-        return resized;
+        return bitmap;
     }
+
+    //이미지 오른쪽으로 90도 회전해주는 함수
+    private Bitmap imgRotate(Bitmap bmp){
+        int width = bmp.getWidth();
+        int height = bmp.getHeight();
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate(90);
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(bmp, 0, 0, width, height, matrix, true);
+        bmp.recycle();
+
+        return resizedBitmap;
+    }
+
 
     //겔러리로부터 이미지 경로를 받아와 비트맵을 byteArray로 전환후 db에 저장
     @Override
     protected void onActivityResult(int requestCode, int resultCode,  Intent data) {
+
         if(requestCode == REQ_CODE_GALLERY){
             if(resultCode == RESULT_OK){
                 Uri uri = data.getData();
-
+                Toast.makeText(getApplicationContext(), "activity result2", Toast.LENGTH_SHORT).show();
                 try {
                     Bitmap bm = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                    food = bitmapToByteArray(bm);
+                    Bitmap resized = null;
+                    int height = bm.getHeight();
+                    int width = bm.getWidth();
+                    resized = Bitmap.createScaledBitmap(bm, width/2, height/2, true);
+                    if(height > 2000){
+                        resized = imgRotate(resized);
+                        food = bitmapToByteArray(resized);
+                    }
+                    else{
+                        food = bitmapToByteArray(bm);
+                    }
+
                     foodpicture_save[i] = food;
                     Toast.makeText(getApplicationContext(), "사진이 추가 되었습니다.", Toast.LENGTH_SHORT).show();
                     i++;
@@ -385,13 +394,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // GPS 를 사용할수 없으므로
             gps.showSettingsAlert();
         }
+
+        db = dbManager.getReadableDatabase();
+        Cursor eateryCursor =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
+
+        //데이터 베이스로 부터 불러온 맛집리스트 목록 출력
+        while(eateryCursor.moveToNext()) {
+            String eatery_title = eateryCursor.getString(1);
+            double initLatitute = eateryCursor.getDouble(5);
+            double initLongitute = eateryCursor.getDouble(6);
+            //마커객체 생성
+            MarkerOptions optSecond = new MarkerOptions();
+            optSecond.position(new LatLng(initLatitute, initLongitute));// 위도 • 경도
+            optSecond.title(eatery_title); // 제목 미리보기
+            mMap.addMarker(optSecond).showInfoWindow();
+        }
     }
 
     private final LocationListener mLocationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
-            //여기서 위치값이 갱신되면 이벤트가 발생한다.
-            //값은 Location 형태로 리턴되며 좌표 출력 방법은 다음과 같다.
-
+            //위치값이 갱신되면 위도와 경도를 갱신
             longi = location.getLongitude(); //경도
             lati = location.getLatitude();   //위도
         }
@@ -623,7 +645,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         adapter = new ListViewAdapter();
         listview = (ListView) findViewById(R.id.foodlist);
         listview.setAdapter(adapter);
-        Log.i("tag", "onrestart start");
+
+        //스토리 adapter 구현
+        Story_adapter = new StoryAdapter(getApplicationContext(), R.layout.story, story);
+        ListView lv = (ListView)findViewById(R.id.storylistView);
+        lv.setAdapter(Story_adapter);
+        story = new ArrayList<Story>();
+
         db = dbManager.getReadableDatabase();
         Cursor eateryCursor2 =db.rawQuery("SELECT _id, name, category, memo, date, lati,longi FROM FOOD", null);
         Cursor pictureCursor2 = db.rawQuery("SELECT _id, food_id, picture FROM FOOD_PICTURE", null);

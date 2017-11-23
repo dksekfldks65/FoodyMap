@@ -72,18 +72,38 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
 
-        <Button
-            android:id="@+id/update"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/memo"
-            android:layout_alignParentBottom="true"
-            android:layout_alignRight="@+id/memo"
-            android:layout_gravity="center"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@android:color/holo_blue_bright"
-            android:onClick="onclickedupdate"
-            android:text="수정하기" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <Button
+                android:id="@+id/addPicture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:onClick="onclickedAddPicture"
+                android:text="사진추가" />
+
+            <Button
+                android:id="@+id/update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@+id/memo"
+                android:layout_alignParentBottom="true"
+                android:layout_alignRight="@+id/memo"
+
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:onClick="onclickedupdate"
+                android:text="수정하기" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 
