@@ -21,7 +21,8 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -30,12 +31,14 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.Toast;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,7 +50,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     Button save;
     Button picture_btn;
-    ListView listview ;
+    ListView listview = null;
     ListViewAdapter adapter;
     static DBManager dbManager;
     private final int REQ_CODE_GALLERY = 100;
@@ -62,6 +65,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<Story> story = new ArrayList<Story>();
     StoryAdapter Story_adapter;
     private GpsInfo gps;
+
+    public MapsActivity() {
+    }
 
 
     @Override
@@ -79,7 +85,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
         save = (Button) findViewById(R.id.save);
         picture_btn = (Button) findViewById(R.id.registerpicture);
 
@@ -88,8 +93,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         listview = (ListView) findViewById(R.id.foodlist);
         listview.setAdapter(adapter);
 
-        foodpicture_save = new byte [30][];
+        EditText editTextFilter = (EditText)findViewById(R.id.editTextFilter);
+        editTextFilter.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable edit) {
+                String filterText = edit.toString();
+                if (filterText.length() > 0) {
+                    listview.setFilterText(filterText);
+                } else {
+                    listview.clearTextFilter();
+                }
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        });
 
+        foodpicture_save = new byte [30][];
 
         //Tab 메뉴바 생성
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
@@ -210,6 +233,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return false;
             }
         });
+
     }
 
 
@@ -682,7 +706,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.korean_food), eatery_title, eatery_category, eatery_key);
             else if (eatery_category.equals("중식"))
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.chinese_food), eatery_title, eatery_category, eatery_key);
-            else if (eatery_category.equals("일식"))
+                else if (eatery_category.equals("일식"))
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.japanese_food), eatery_title, eatery_category, eatery_key);
             else if (eatery_category.equals("양식"))
                 adapter.addItem(ContextCompat.getDrawable(this, R.drawable.wastern_food), eatery_title, eatery_category, eatery_key);
@@ -698,5 +722,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         eateryCursor2.close();
     }
-
 }
