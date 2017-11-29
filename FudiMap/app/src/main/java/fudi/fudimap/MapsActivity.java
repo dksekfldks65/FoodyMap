@@ -88,29 +88,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         save = (Button) findViewById(R.id.save);
         picture_btn = (Button) findViewById(R.id.registerpicture);
 
+
         // Adapter 생성, 리스트뷰 참조 및 Adapter달기
         adapter = new ListViewAdapter() ;
         listview = (ListView) findViewById(R.id.foodlist);
         listview.setAdapter(adapter);
-
-        EditText editTextFilter = (EditText)findViewById(R.id.editTextFilter);
-        editTextFilter.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable edit) {
-                String filterText = edit.toString();
-                if (filterText.length() > 0) {
-                    listview.setFilterText(filterText);
-                } else {
-                    listview.clearTextFilter();
-                }
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-        });
 
         foodpicture_save = new byte [30][];
 
@@ -234,6 +216,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        /*
+        EditText 텍스트 변경 이벤트 처리
+            EditText(@id/editTextFilter)를 통해 ListView의 아이템을 필터링할 텍스트를 입력 받은 다음,
+            ListView의 setFilterText() 함수를 호출하여 필터링을 수행하도록 만듦
+        */
+        EditText editTextFilter = (EditText)findViewById(R.id.editTextFilter);
+        editTextFilter.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable edit) {
+                String filterText = edit.toString();
+                ((ListViewAdapter)listview.getAdapter()).getFilter().filter(filterText) ;
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        });
     }
 
 

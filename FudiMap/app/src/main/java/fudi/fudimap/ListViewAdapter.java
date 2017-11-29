@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+// Adapter가 Filtering 기능을 지원하기 위해서 Filterable 인터페이스를 사용
 public class ListViewAdapter extends BaseAdapter implements Filterable {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList. (원본 데이터 리스트)
     private ArrayList<ListItem> listViewItemList = new ArrayList<ListItem>();
@@ -24,14 +25,6 @@ public class ListViewAdapter extends BaseAdapter implements Filterable {
     // ListViewAdapter의 생성자
     public ListViewAdapter() {
 
-    }
-
-    @Override
-    public Filter getFilter() {
-        if (listFilter == null) {
-            listFilter = new ListFilter();
-        }
-        return listFilter;
     }
 
     // Adapter에 사용되는 데이터의 개수를 리턴. : 필수 구현
@@ -107,6 +100,16 @@ public class ListViewAdapter extends BaseAdapter implements Filterable {
         listViewItemList.remove(position);
     }
 
+    //Filterable 인터페이스의 getFilter() 함수 override
+    @Override
+    public Filter getFilter() {
+        if (listFilter == null) {
+            listFilter = new ListFilter();
+        }
+        return listFilter;
+    }
+
+    // Filter 클래스 추가 및 구현. 커스텀 Adapter 내부에 커스텀 Filter 클래스를 정의하고 구현
     private class ListFilter extends Filter {
 
         @Override
