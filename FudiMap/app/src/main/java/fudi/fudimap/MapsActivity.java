@@ -19,8 +19,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -44,7 +46,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -52,6 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Button picture_btn;
     ListView listview = null;
     ListViewAdapter adapter;
+    ArrayList<ListItem> itemList = new ArrayList<ListItem>();
     static DBManager dbManager;
     private final int REQ_CODE_GALLERY = 100;
     static byte[] food;
@@ -68,7 +75,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public MapsActivity() {
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +96,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         // Adapter 생성, 리스트뷰 참조 및 Adapter달기
-        adapter = new ListViewAdapter() ;
+        adapter = new ListViewAdapter(itemList) ;
         listview = (ListView) findViewById(R.id.foodlist);
         listview.setAdapter(adapter);
 
@@ -235,7 +241,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
         });
+
+        Comparator<String> cmpAsc = new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareTo(o2);
+            }
+        };
+
+        Button buttonTextAsc = (Button) findViewById(R.id.buttonTextAsc);
+        buttonTextAsc.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Comparator<ListItem> textAsc = new Comparator<ListItem>() {
+                    @Override
+                    public int compare(ListItem item1, ListItem item2) {
+                        return item1.getTitle().compareTo(item2.getTitle());
+                    }
+                };
+                Collections.sort(itemList, textAsc);
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
+
 
 
     //식당에 대한 정보 데이타 베이스에 저장해주는 함수
@@ -667,7 +696,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onRestart(){
         super.onRestart();
-        adapter = new ListViewAdapter();
+        adapter = new ListViewAdapter(itemList);
         listview = (ListView) findViewById(R.id.foodlist);
         listview.setAdapter(adapter);
 

@@ -23,8 +23,12 @@ public class ListViewAdapter extends BaseAdapter implements Filterable {
     Filter listFilter;
 
     // ListViewAdapter의 생성자
-    public ListViewAdapter() {
-
+    public ListViewAdapter(ArrayList<ListItem> itemList) {
+        if (itemList == null) {
+            listViewItemList = new ArrayList<ListItem>();
+        } else {
+            listViewItemList = itemList;
+        }
     }
 
     // Adapter에 사용되는 데이터의 개수를 리턴. : 필수 구현
@@ -57,7 +61,6 @@ public class ListViewAdapter extends BaseAdapter implements Filterable {
         iconImageView.setImageDrawable(listViewItem.getIcon());
         titleTextView.setText(listViewItem.getTitle());
         descTextView.setText(listViewItem.getDesc());
-
 
         return convertView;
     }
